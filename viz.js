@@ -40,7 +40,7 @@ function createGraphViz({ container }) {
   var svg = d3.select(container)
     .append('svg')
     .attr('width', width)
-    .attr('height', height);
+    .attr('height', height)
 
   // ensures links sit beneath nodes
   svg.append('g').attr('id', 'links')
@@ -60,7 +60,7 @@ function createGraphViz({ container }) {
       .attr('d', 'M0,-5L10,0L0,5')
 
 
-  var color = d3.scaleOrdinal(d3.schemeCategory20);
+  var color = d3.scaleOrdinal(d3.schemeCategory20)
 
   var simulation = d3.forceSimulation()
       .force('link', d3.forceLink().id(d => d.id).distance(15).strength(1))
@@ -68,7 +68,7 @@ function createGraphViz({ container }) {
       .force('center', d3.forceCenter(width / 2, height / 2))
       .force('border-x', d3.forceX())
       .force('border-y', d3.forceY())
-      .on('tick', ticked);
+      .on('tick', ticked)
   simulation.stop()
 
   // graph svg parts
@@ -162,10 +162,10 @@ function createGraphViz({ container }) {
         .on('end', dragended))
 
     // update simulation
-    simulation.stop();
-    simulation.nodes(viewGraph.nodes);
-    simulation.alpha(1).restart();
-    simulation.force('link').links(viewGraph.links);
+    simulation.stop()
+    simulation.nodes(viewGraph.nodes)
+    simulation.alpha(1).restart()
+    simulation.force('link').links(viewGraph.links)
   }
 
   function ticked() {
@@ -181,20 +181,20 @@ function createGraphViz({ container }) {
   }
 
   function dragstarted(d) {
-    if (!d3.event.active) simulation.alphaTarget(0.3).restart();
-    d.fx = d.x;
-    d.fy = d.y;
+    if (!d3.event.active) simulation.alphaTarget(0.3).restart()
+    d.fx = d.x
+    d.fy = d.y
   }
 
   function dragged(d) {
-    d.fx = d3.event.x;
-    d.fy = d3.event.y;
+    d.fx = d3.event.x
+    d.fy = d3.event.y
   }
 
   function dragended(d) {
-    if (!d3.event.active) simulation.alphaTarget(0);
-    d.fx = null;
-    d.fy = null;
+    if (!d3.event.active) simulation.alphaTarget(0)
+    d.fx = null
+    d.fy = null
   }
 
 }
