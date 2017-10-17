@@ -1,0 +1,18 @@
+{
+  "name": "ipld-resolver-viz",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "async": "^2.5.0",
+    "cids": "^0.5.2",
+    "d3": "^4.11.0",
+    "debounce": "^1.0.2",
+    "lodash.clonedeep": "^4.5.0"
+  }
+}
