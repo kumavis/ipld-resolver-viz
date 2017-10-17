@@ -1,4 +1,5 @@
 const d3 = require('d3')
+const debounce = require('debounce')
 const createCachedCloner = require('./createCachedCloner')
 const cahedClone = createCachedCloner()
 
@@ -28,7 +29,7 @@ function createGraphViz({ container }) {
 
   const buttonEl = document.createElement('button')
   buttonEl.innerText = 'clear'
-  buttonEl.addEventListener('click', resetGraph)
+  buttonEl.addEventListener('click', updateAfter(resetGraph))
   container.appendChild(buttonEl)
 
   const graph = { nodes: [], links: [] }
@@ -74,15 +75,32 @@ function createGraphViz({ container }) {
   let linkComponent
   let nodeComponent
 
-  update()
+  const update = debounce(updateViewGraph, 100)
+  updateViewGraph()
 
 
-  return { update, simulation, graph, addNode, addLink, resetGraph }
+  return {
+    // plumbing
+    graph,
+    simulation,
+    update,
+    // porcelain
+    addNode: updateAfter(addNode),
+    addLink: updateAfter(addLink),
+    resetGraph: updateAfter(resetGraph),
+  }
+
+  // helper for calling appending an update to functions
+  function updateAfter(fn) {
+    return function updateAfterWrapper() {
+      fn.apply(null, arguments)
+      update()
+    }
+  }
 
   function resetGraph () {
     graph.nodes = []
     graph.links = []
-    update()
   }
 
   function addNode(node) {
@@ -92,15 +110,13 @@ function createGraphViz({ container }) {
     const nodeCopy = cahedClone(node)
     nodeCopy.x = width/2
     nodeCopy.y = height/2
-    update()
   }
 
   function addLink(link) {
     graph.links.push(link)
-    update()
   }
 
-  function update(){
+  function updateViewGraph(){
     const viewGraph = {
       nodes: graph.nodes.map(cahedClone),
       links: graph.links.map(cahedClone),
