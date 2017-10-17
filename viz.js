@@ -69,8 +69,8 @@ function createGraphViz({ container }) {
   simulation.stop()
 
   // graph svg parts
-  let link
-  let node
+  let linkComponent
+  let nodeComponent
 
   update()
 
@@ -97,55 +97,53 @@ function createGraphViz({ container }) {
 
   function update(){
 
+    const renderGraph = graph
+
     //adds newest branch and draws it
-    link = svg.select('#links')
-      .selectAll('.link')
-      .data(graph.links)
-    var linkEnter = link
-      .enter().append('line')
-        .attr('class','link')
-        .attr('marker-end', `url(#arrowHead)`)
-    link = linkEnter.merge(link);
+    linkComponent = svg.select('#links').selectAll('.link')
+      .data(renderGraph.links)
+    // exit
+    linkComponent.exit().remove()
+    // enter + update
+    linkComponent.enter()
+      .insert('line')
+      .merge(linkComponent)
+      .attr('class','link')
+      .attr('marker-end', `url(#arrowHead)`)
 
     //adds newest leaf
-    node = svg.select('#nodes')
-      .selectAll('.node')
-      .data(graph.nodes)
-    var nodeEnter = node
-      .enter().append('g')
-      .append('circle')
-          .attr('class','node')
-          .attr('r', 5)
-          .attr('fill', d => color(d.group))
-          .call(d3.drag()
-              .on('start', dragstarted)
-              .on('drag', dragged)
-              .on('end', dragended));
+    nodeComponent = svg.select('#nodes').selectAll('.node')
+      .data(renderGraph.nodes, d => d.id)
+    // exit
+    nodeComponent.exit().remove()
+    // enter and update
+    nodeComponent.enter()
+      .insert('g').insert('circle')
+      .merge(nodeComponent)
+      .attr('class','node')
+      .attr('r', 5)
+      .attr('fill', d => color(d.group))
+      .call(d3.drag()
+        .on('start', dragstarted)
+        .on('drag', dragged)
+        .on('end', dragended))
 
-    node = nodeEnter.merge(node);
-
+    // update simulation
     simulation.stop();
-
-    simulation.nodes(graph.nodes);
-
-    simulation.force('link')
-      .links(graph.links);
-
-
-    // restart simulation
-    simulation.alpha(1);
-    simulation.restart();
+    simulation.nodes(renderGraph.nodes);
+    simulation.alpha(1).restart();
+    simulation.force('link').links(renderGraph.links);
   }
 
 
   function ticked() {
-    link
+    linkComponent
       .attr('x1', d => d.source.x)
       .attr('y1', d => d.source.y)
       .attr('x2', d => d.target.x)
       .attr('y2', d => d.target.y)
 
-    node
+    nodeComponent
       .attr('cx', d => d.x)
       .attr('cy', d => d.y)
   }
