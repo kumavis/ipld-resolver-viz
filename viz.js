@@ -23,13 +23,12 @@ function createGraphViz({ container }) {
   const styleEl = document.createElement('style')
   styleEl.appendChild(document.createTextNode(styleContent))
   document.head.appendChild(styleEl)
-  //
-  // const svgEl = document.createElement('svg')
-  // svgEl.setAttribute('width', 900)
-  // svgEl.setAttribute('height', 600)
-  // document.body.appendChild(svgEl)
 
-  // const graph = require('./graph.json')
+  const buttonEl = document.createElement('button')
+  buttonEl.innerText = 'clear'
+  buttonEl.addEventListener('click', resetGraph)
+  container.appendChild(buttonEl)
+
   const graph = { nodes: [], links: [] }
 
   const width = 900
@@ -76,7 +75,13 @@ function createGraphViz({ container }) {
   update()
 
 
-  return { update, simulation, graph, addNode, addLink }
+  return { update, simulation, graph, addNode, addLink, resetGraph }
+
+  function resetGraph () {
+    graph.nodes = []
+    graph.links = []
+    update()
+  }
 
   function addNode(node) {
     node.x = width/2
