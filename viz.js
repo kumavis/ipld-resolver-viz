@@ -1,4 +1,6 @@
 const d3 = require('d3')
+const createCachedCloner = require('./createCachedCloner')
+const cahedClone = createCachedCloner()
 
 module.exports = createGraphViz
 
@@ -84,9 +86,12 @@ function createGraphViz({ container }) {
   }
 
   function addNode(node) {
-    node.x = width/2
-    node.y = height/2
     graph.nodes.push(node)
+    // pre-cahedClone here to set the initial position
+    // modified copy will be retreived in updateGraph
+    const nodeCopy = cahedClone(node)
+    nodeCopy.x = width/2
+    nodeCopy.y = height/2
     update()
   }
 
@@ -96,12 +101,14 @@ function createGraphViz({ container }) {
   }
 
   function update(){
-
-    const renderGraph = graph
+    const viewGraph = {
+      nodes: graph.nodes.map(cahedClone),
+      links: graph.links.map(cahedClone),
+    }
 
     //adds newest branch and draws it
     linkComponent = svg.select('#links').selectAll('.link')
-      .data(renderGraph.links)
+      .data(viewGraph.links)
     // exit
     linkComponent.exit().remove()
     // enter + update
@@ -113,7 +120,7 @@ function createGraphViz({ container }) {
 
     //adds newest leaf
     nodeComponent = svg.select('#nodes').selectAll('.node')
-      .data(renderGraph.nodes, d => d.id)
+      .data(viewGraph.nodes, d => d.id)
     // exit
     nodeComponent.exit().remove()
     // enter and update
@@ -130,11 +137,10 @@ function createGraphViz({ container }) {
 
     // update simulation
     simulation.stop();
-    simulation.nodes(renderGraph.nodes);
+    simulation.nodes(viewGraph.nodes);
     simulation.alpha(1).restart();
-    simulation.force('link').links(renderGraph.links);
+    simulation.force('link').links(viewGraph.links);
   }
-
 
   function ticked() {
     linkComponent
