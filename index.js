@@ -13,10 +13,10 @@ const nodeTypes = {
 }
 module.exports = createResolverGraphViz
 
-function createResolverGraphViz({ ipfs, container, maxNodeCount }) {
+function createResolverGraphViz({ ipfs, container }) {
   const ipldResolver = ipfs._ipldResolver
   if (!ipldResolver.events) return console.warn('ipld resolver does not support events')
-  const viz = createGraphViz({ container, maxNodeCount })
+  const viz = createGraphViz({ container })
   // add node
   ipldResolver.events.on('node:before', addNode)
   ipldResolver.events.on('node:resolved', addNodeLinks)
