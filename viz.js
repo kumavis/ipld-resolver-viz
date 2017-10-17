@@ -5,7 +5,7 @@ const cachedClone = createCachedCloner()
 
 module.exports = createGraphViz
 
-function createGraphViz({ container }) {
+function createGraphViz({ container, maxNodeCount = Math.Infinity }) {
 
   const styleContent = `
   #links line {
@@ -68,7 +68,7 @@ function createGraphViz({ container }) {
       .force('center', d3.forceCenter(width / 2, height / 2))
       .force('border-x', d3.forceX())
       .force('border-y', d3.forceY())
-      .on('tick', ticked)
+      .on('tick', updateViewPositions)
   simulation.stop()
 
   // graph svg parts
@@ -111,6 +111,10 @@ function createGraphViz({ container }) {
     const nodeCopy = cachedClone(node)
     nodeCopy.x = width/2
     nodeCopy.y = height/2
+   // kick out old nodes if over limit
+   if (graph.nodes.length > maxNodeCount) {
+     removeNode(graph.nodes[0])
+   }
   }
 
   function removeNode(node) {
@@ -166,9 +170,10 @@ function createGraphViz({ container }) {
     simulation.nodes(viewGraph.nodes)
     simulation.alpha(1).restart()
     simulation.force('link').links(viewGraph.links)
+    updateViewPositions()
   }
 
-  function ticked() {
+  function updateViewPositions() {
     linkComponent
       .attr('x1', d => d.source.x)
       .attr('y1', d => d.source.y)
