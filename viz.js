@@ -1,7 +1,7 @@
 const d3 = require('d3')
 const debounce = require('debounce')
 const createCachedCloner = require('./createCachedCloner')
-const cahedClone = createCachedCloner()
+const cachedClone = createCachedCloner()
 
 module.exports = createGraphViz
 
@@ -106,9 +106,9 @@ function createGraphViz({ container }) {
 
   function addNode(node) {
     graph.nodes.push(node)
-    // pre-cahedClone here to set the initial position
+    // pre-cachedClone here to set the initial position
     // modified copy will be retreived in updateGraph
-    const nodeCopy = cahedClone(node)
+    const nodeCopy = cachedClone(node)
     nodeCopy.x = width/2
     nodeCopy.y = height/2
   }
@@ -128,8 +128,8 @@ function createGraphViz({ container }) {
 
   function updateViewGraph(){
     const viewGraph = {
-      nodes: graph.nodes.map(cahedClone),
-      links: graph.links.map(cahedClone),
+      nodes: graph.nodes.map(cachedClone),
+      links: graph.links.map(cachedClone),
     }
 
     //adds newest branch and draws it
