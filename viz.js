@@ -87,6 +87,7 @@ function createGraphViz({ container }) {
     // porcelain
     addNode: updateAfter(addNode),
     addLink: updateAfter(addLink),
+    removeNode: updateAfter(removeNode),
     resetGraph: updateAfter(resetGraph),
   }
 
@@ -110,6 +111,15 @@ function createGraphViz({ container }) {
     const nodeCopy = cahedClone(node)
     nodeCopy.x = width/2
     nodeCopy.y = height/2
+  }
+
+  function removeNode(node) {
+    const id = node.id
+    // remove node from graph
+    removeFromArray(node, graph.nodes)
+    // remove associated links from graph
+    const links = graph.links.filter(link => link.source === id || link.target === id)
+    links.forEach((link) => removeFromArray(link, graph.links))
   }
 
   function addLink(link) {
@@ -187,4 +197,9 @@ function createGraphViz({ container }) {
     d.fy = null;
   }
 
+}
+
+function removeFromArray(item, array) {
+  const index = array.indexOf(item)
+  array.splice(index, 1)
 }
