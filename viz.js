@@ -1,5 +1,6 @@
 const d3 = require('d3')
 const debounce = require('debounce')
+const d3SaveSvg = require('d3-save-svg')
 const createCachedCloner = require('./createCachedCloner')
 const cachedClone = createCachedCloner()
 
@@ -27,10 +28,15 @@ function createGraphViz({ container, maxNodeCount = Math.Infinity }) {
   styleEl.appendChild(document.createTextNode(styleContent))
   document.head.appendChild(styleEl)
 
-  const buttonEl = document.createElement('button')
-  buttonEl.innerText = 'clear'
-  buttonEl.addEventListener('click', updateAfter(resetGraph))
-  container.appendChild(buttonEl)
+  const clearButton = document.createElement('button')
+  clearButton.innerText = 'clear'
+  clearButton.addEventListener('click', updateAfter(resetGraph))
+  container.appendChild(clearButton)
+
+  const downloadButton = document.createElement('button')
+  downloadButton.innerText = 'download'
+  downloadButton.addEventListener('click', downloadSvg)
+  container.appendChild(downloadButton)
 
   const graph = { nodes: [], links: [] }
 
@@ -222,6 +228,16 @@ function createGraphViz({ container, maxNodeCount = Math.Infinity }) {
     if (!d3.event.active) simulation.alphaTarget(0)
     d.fx = null
     d.fy = null
+  }
+
+  function downloadSvg() {
+    const svgCopy = svg.node().cloneNode(true)
+    // need to insert into the dom for d3SaveSvg to work
+    container.appendChild(svgCopy)
+    d3SaveSvg.save(svgCopy, {
+      filename: 'ethereum-state-graph',
+    })
+    svgCopy.remove()
   }
 
 }
