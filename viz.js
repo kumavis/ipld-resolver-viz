@@ -127,7 +127,18 @@ function createGraphViz({ container, maxNodeCount = Math.Infinity }) {
   }
 
   function addLink(link) {
+    const alreadyHasLink = graph.links.some(d => d.source === link.source && d.target === link.target)
+    if (alreadyHasLink) return
+    const hasSource = graph.nodes.some(d => d.id === link.source)
+    if (!hasSource) return
+    const hasTarget = graph.nodes.some(d => d.id === link.target)
+    if (!hasTarget) return
+    // add to graph
     graph.links.push(link)
+    // pre-cachedClone here to set the initial position
+    // modified copy will be retreived in updateGraph
+    const linkCopy = cachedClone(link)
+    linkCopy.id = idForLink(link)
   }
 
   function updateViewGraph(){
@@ -138,13 +149,14 @@ function createGraphViz({ container, maxNodeCount = Math.Infinity }) {
 
     //adds newest branch and draws it
     linkComponent = svg.select('#links').selectAll('.link')
-      .data(viewGraph.links)
+      .data(viewGraph.links, d => d.id)
     // exit
     linkComponent.exit().remove()
     // enter + update
     linkComponent = linkComponent.enter()
       .insert('line')
       .merge(linkComponent)
+      .attr('id',d => d.id)
       .attr('class','link')
       .attr('marker-end', `url(#arrowHead)`)
 
@@ -157,6 +169,7 @@ function createGraphViz({ container, maxNodeCount = Math.Infinity }) {
     nodeComponent= nodeComponent.enter()
       .insert('g').insert('circle')
       .merge(nodeComponent)
+      .attr('id',d => d.id)
       .attr('class','node')
       .attr('r', 5)
       .attr('fill', d => color(d.group))
@@ -207,4 +220,13 @@ function createGraphViz({ container, maxNodeCount = Math.Infinity }) {
 function removeFromArray(item, array) {
   const index = array.indexOf(item)
   array.splice(index, 1)
+}
+
+// handles both types of links:
+// { source: id }, { source: { id } }
+function idForLink(link) {
+  const source = link.source.id || link.source
+  const target = link.target.id || link.target
+  if (!source || !target) debugger
+  return `${source}-${target}`
 }
