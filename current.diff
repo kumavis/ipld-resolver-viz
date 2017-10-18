@@ -1,0 +1,107 @@
+diff --git a/viz.js b/viz.js
+index 00c0b7a..0f76124 100644
+--- a/viz.js
++++ b/viz.js
+@@ -33,6 +33,7 @@ function createGraphViz({ container, maxNodeCount = Math.Infinity }) {
+   container.appendChild(buttonEl)
+ 
+   const graph = { nodes: [], links: [] }
++  let viewGraph = { nodes: [], links: [] }
+ 
+   const width = 900
+   const height = 600
+@@ -75,13 +76,17 @@ function createGraphViz({ container, maxNodeCount = Math.Infinity }) {
+   let linkComponent
+   let nodeComponent
+ 
+-  const update = debounce(updateViewGraph, 100)
++  const update = debounce(() => {
++    updateViewGraph()
++    updateViewGraph()
++  }, 100)
+   updateViewGraph()
+ 
+ 
+   return {
+     // plumbing
+     graph,
++    viewGraph,
+     simulation,
+     update,
+     // porcelain
+@@ -127,18 +132,34 @@ function createGraphViz({ container, maxNodeCount = Math.Infinity }) {
+   }
+ 
+   function addLink(link) {
++    const alreadyHasLink = graph.links.some(d => d.source === link.source && d.target === link.target)
++    if (alreadyHasLink) return
++    const hasSource = graph.nodes.some(d => d.id === link.source)
++    if (!hasSource) return
++    const hasTarget = graph.nodes.some(d => d.id === link.target)
++    if (!hasTarget) return
++    // add to graph
+     graph.links.push(link)
++    // pre-cachedClone here to set the initial position
++    // modified copy will be retreived in updateGraph
++    const linkCopy = cachedClone(link)
++    linkCopy.id = idForLink(link)
+   }
+ 
+   function updateViewGraph(){
+-    const viewGraph = {
+-      nodes: graph.nodes.map(cachedClone),
+-      links: graph.links.map(cachedClone),
+-    }
++    viewGraph.nodes = graph.nodes.map(cachedClone)
++    viewGraph.links = graph.links.map(cachedClone)
++
++    // update simulation
++    simulation.stop()
++    simulation.nodes(viewGraph.nodes)
++    simulation.force('link').links(viewGraph.links)
++    simulation.alpha(1).restart()
++    simulation.tick()
+ 
+     //adds newest branch and draws it
+     linkComponent = svg.select('#links').selectAll('.link')
+-      .data(viewGraph.links)
++      .data(viewGraph.links, idForLink)
+     // exit
+     linkComponent.exit().remove()
+     // enter + update
+@@ -157,6 +178,7 @@ function createGraphViz({ container, maxNodeCount = Math.Infinity }) {
+     nodeComponent.enter()
+       .insert('g').insert('circle')
+       .merge(nodeComponent)
++      .attr('id',d => d.id)
+       .attr('class','node')
+       .attr('r', 5)
+       .attr('fill', d => color(d.group))
+@@ -165,11 +187,6 @@ function createGraphViz({ container, maxNodeCount = Math.Infinity }) {
+         .on('drag', dragged)
+         .on('end', dragended))
+ 
+-    // update simulation
+-    simulation.stop()
+-    simulation.nodes(viewGraph.nodes)
+-    simulation.alpha(1).restart()
+-    simulation.force('link').links(viewGraph.links)
+     updateViewPositions()
+   }
+ 
+@@ -204,6 +221,15 @@ function createGraphViz({ container, maxNodeCount = Math.Infinity }) {
+ 
+ }
+ 
++// handles both types of links:
++// { source: id }, { source: { id } }
++function idForLink(link) {
++  const source = link.source.id || link.source
++  const target = link.target.id || link.target
++  if (!source || !target) debugger
++  return `${source},${target}`
++}
++
+ function removeFromArray(item, array) {
+   const index = array.indexOf(item)
+   array.splice(index, 1)

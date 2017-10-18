@@ -142,7 +142,7 @@ function createGraphViz({ container, maxNodeCount = Math.Infinity }) {
     // exit
     linkComponent.exit().remove()
     // enter + update
-    linkComponent.enter()
+    linkComponent = linkComponent.enter()
       .insert('line')
       .merge(linkComponent)
       .attr('class','link')
@@ -154,7 +154,7 @@ function createGraphViz({ container, maxNodeCount = Math.Infinity }) {
     // exit
     nodeComponent.exit().remove()
     // enter and update
-    nodeComponent.enter()
+    nodeComponent= nodeComponent.enter()
       .insert('g').insert('circle')
       .merge(nodeComponent)
       .attr('class','node')
@@ -168,8 +168,8 @@ function createGraphViz({ container, maxNodeCount = Math.Infinity }) {
     // update simulation
     simulation.stop()
     simulation.nodes(viewGraph.nodes)
-    simulation.alpha(1).restart()
     simulation.force('link').links(viewGraph.links)
+    simulation.alpha(1).restart()
     updateViewPositions()
   }
 
