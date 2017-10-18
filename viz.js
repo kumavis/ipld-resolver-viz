@@ -66,8 +66,8 @@ function createGraphViz({ container, maxNodeCount = Math.Infinity }) {
       .force('link', d3.forceLink().id(d => d.id).distance(15).strength(1))
       .force('charge', d3.forceManyBody())
       .force('center', d3.forceCenter(width / 2, height / 2))
-      .force('border-x', d3.forceX())
-      .force('border-y', d3.forceY())
+      .force('border-x', d3.forceX(width / 2).strength(0.15))
+      .force('border-y', d3.forceY(height / 2).strength(0.15))
       .on('tick', updateViewPositions)
   simulation.stop()
 
