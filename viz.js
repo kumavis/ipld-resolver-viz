@@ -88,6 +88,7 @@ function createGraphViz({ container, maxNodeCount = Math.Infinity }) {
     addNode: updateAfter(addNode),
     addLink: updateAfter(addLink),
     removeNode: updateAfter(removeNode),
+    removeNodeById: updateAfter(removeNodeById),
     resetGraph: updateAfter(resetGraph),
   }
 
@@ -126,6 +127,12 @@ function createGraphViz({ container, maxNodeCount = Math.Infinity }) {
     // remove associated links from graph
     const links = graph.links.filter(link => link.source === id || link.target === id)
     links.forEach((link) => removeFromArray(link, graph.links))
+  }
+
+  function removeNodeById(id) {
+    const node = graph.nodes.find(node => node.id === id)
+    if (!node) return
+    removeNode(node)
   }
 
   function addLink(link) {
