@@ -14,6 +14,11 @@ function createGraphViz({ container, maxNodeCount = Math.Infinity }) {
     stroke-opacity: 0.6;
   }
 
+  #links line.link.link_eth-block_eth-block {
+    stroke-opacity: 1;
+    stroke-width: 1.5px;
+  }
+
   defs marker {
     stroke: #999;
     stroke-opacity: 0.6;
