@@ -31,6 +31,7 @@ function createResolverGraphViz({ ipfs, container, maxNodeCount }) {
     const group = nodeTypes[cid.codec] || 0
     viz.addNode({
       id: cidString,
+      codec: cid.codec,
       group,
     })
   }

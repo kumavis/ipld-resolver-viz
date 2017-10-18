@@ -166,7 +166,7 @@ function createGraphViz({ container, maxNodeCount = Math.Infinity }) {
       .insert('line')
       .merge(linkComponent)
       .attr('id',d => d.id)
-      .attr('class','link')
+      .attr('class', d => `link link_${d.source.codec}_${d.target.codec}`)
       .attr('marker-end', `url(#arrowHead)`)
 
     //adds newest leaf
@@ -179,7 +179,7 @@ function createGraphViz({ container, maxNodeCount = Math.Infinity }) {
       .insert('g').insert('circle')
       .merge(nodeComponent)
       .attr('id',d => d.id)
-      .attr('class','node')
+      .attr('class', d => `node node_${d.codec}`)
       .attr('r', 5)
       .attr('fill', d => color(d.group))
       .call(d3.drag()
@@ -237,5 +237,5 @@ function idForLink(link) {
   const source = link.source.id || link.source
   const target = link.target.id || link.target
   if (!source || !target) debugger
-  return `${source}-${target}`
+  return `${source}_${target}`
 }
