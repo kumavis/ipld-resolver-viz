@@ -105,6 +105,8 @@ function createGraphViz({ container, maxNodeCount = Math.Infinity }) {
   }
 
   function addNode(node) {
+    const alreadyHasNode = graph.nodes.some(d => d.id === node.id)
+    if (alreadyHasNode) return
     graph.nodes.push(node)
     // pre-cachedClone here to set the initial position
     // modified copy will be retreived in updateGraph
